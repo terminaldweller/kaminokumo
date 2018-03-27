@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+
+import argparse
+import json
+import code
+import readline
+import signal
+import sys
+import os
+import requests
+import urllib3
+from time import sleep
+from bs4 import BeautifulSoup
+
+def SigHandler_SIGINT(signum, frame):
+    print()
+    sys.exit(0)
+
+class Argparser(object):
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--url", type=str, nargs="+", help="url to scrape")
+        parser.add_argument("--dbg", action="store_true", help="debug", default=False)
+        parser.add_argument("--demon", action="store_true", help="run as daemon", default=False)
+        parser.add_argument("--slumber", type=int, help="how long the demon sleeps", default=60)
+        self.args = parser.parse_args()
+
+def mrg(url):
+    requests.packages.urllib3.disable_warnings()
+    resp = requests.get(url, verify=False)
+    soup = BeautifulSoup(resp.text, "lxml")
+    #print(resp.text)
+    res = soup.select("dd")
+    length = len(res[7].text.split(","))
+    for split in res[7].text.split(","):
+        if length == 1:
+            if split.find("minutes"):
+                print("hey, wer'e up")
+                return True
+
+###############################################################################
+def premain(argparser):
+    signal.signal(signal.SIGINT, SigHandler_SIGINT)
+    url = json.load(open("./data.json"))
+    mrg(url["url"])
+
+def main():
+    argparser = Argparser()
+    if argparser.args.dbg:
+        try:
+            premain(argparser)
+        except:
+            variables = globals().copy()
+            variables.update(locals())
+            shell = code.InteractiveConsole(variables)
+            shell.interact(banner="DEBUG REPL")
+    else:
+        while True:
+            premain(argparser)
+            sleep(600)
+
+if __name__ == "__main__":
+    main()
