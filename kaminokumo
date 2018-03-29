@@ -34,14 +34,14 @@ def mrg(url):
     length = len(res[7].text.split(","))
     for split in res[7].text.split(","):
         if length == 1:
-            if split.find("minutes"):
-                print("hey, wer'e up")
+            if split.find("minutes") != -1:
+                print("mg")
                 return True
 
 ###############################################################################
 def premain(argparser):
     signal.signal(signal.SIGINT, SigHandler_SIGINT)
-    url = json.load(open("./data.json"))
+    url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
     mrg(url["url"])
 
 def main():
@@ -55,9 +55,7 @@ def main():
             shell = code.InteractiveConsole(variables)
             shell.interact(banner="DEBUG REPL")
     else:
-        while True:
-            premain(argparser)
-            sleep(600)
+        premain(argparser)
 
 if __name__ == "__main__":
     main()
