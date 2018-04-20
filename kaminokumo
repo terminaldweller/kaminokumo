@@ -37,6 +37,7 @@ def mrg(url):
             if split.find("minutes") != -1:
                 print("mg")
                 return True
+    return False
 
 ###############################################################################
 def premain(argparser):
