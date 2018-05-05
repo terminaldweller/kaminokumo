@@ -35,7 +35,7 @@ def mrg(url):
     for split in res[7].text.split(","):
         if length == 1:
             if split.find("minutes") != -1:
-                print("mg")
+                #print("mg")
                 return True
     return False
 
@@ -43,7 +43,8 @@ def mrg(url):
 def premain(argparser):
     signal.signal(signal.SIGINT, SigHandler_SIGINT)
     url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
-    mrg(url["url"])
+    if mrg(url["1"]): print("mg")
+    if mrg(url["2"]): print ("obk")
 
 def main():
     argparser = Argparser()
