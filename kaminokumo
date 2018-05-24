@@ -11,6 +11,7 @@ import requests
 import urllib3
 from time import sleep
 from bs4 import BeautifulSoup
+import subprocess
 
 def SigHandler_SIGINT(signum, frame):
     print()
@@ -20,6 +21,7 @@ class Argparser(object):
     def __init__(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("--url", type=str, nargs="+", help="url to scrape")
+        parser.add_argument("--name", type=str, nargs="+", help="url to scrape")
         parser.add_argument("--dbg", action="store_true", help="debug", default=False)
         parser.add_argument("--demon", action="store_true", help="run as daemon", default=False)
         parser.add_argument("--slumber", type=int, help="how long the demon sleeps", default=60)
@@ -39,12 +41,21 @@ def mrg(url):
                 return True
     return False
 
+def vocalize(sound):
+    subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
 ###############################################################################
 def premain(argparser):
     signal.signal(signal.SIGINT, SigHandler_SIGINT)
     url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
-    if mrg(url["1"]): print("mg")
-    if mrg(url["2"]): print ("obk")
+    if mrg(url["1"]):
+        print("mg")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/mgup.ogg")
+    if mrg(url["2"]):
+        print ("obk")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/obk.ogg")
+    if mrg(url["3"]):
+        print ("mlv")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/obk.ogg")
 
 def main():
     argparser = Argparser()
