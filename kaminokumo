@@ -48,14 +48,15 @@ def premain(argparser):
     signal.signal(signal.SIGINT, SigHandler_SIGINT)
     url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
     if mrg(url["1"]):
-        print("mg")
+        print("mg", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/mgup.ogg")
     if mrg(url["2"]):
-        print ("obk")
-        vocalize(os.path.expanduser("~") + "/scripts/mila/obk.ogg")
+        print ("obk", end="")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/obkup.ogg")
     if mrg(url["3"]):
-        print ("mlv")
-        vocalize(os.path.expanduser("~") + "/scripts/mila/obk.ogg")
+        print ("ddd")
+    if mrg(url["4"]):
+        print ("red")
 
 def main():
     argparser = Argparser()
