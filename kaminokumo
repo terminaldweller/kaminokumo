@@ -54,9 +54,11 @@ def premain(argparser):
         print ("obk", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/obkup.ogg")
     if mrg(url["3"]):
-        print ("ddd")
+        print ("ddd", end="")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/dddup.ogg")
     if mrg(url["4"]):
-        print ("red")
+        print ("red", end="")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/annaup.ogg")
 
 def main():
     argparser = Argparser()
