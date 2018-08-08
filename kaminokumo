@@ -59,6 +59,9 @@ def premain(argparser):
     if mrg(url["4"]):
         print ("red", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/annaup.ogg")
+    if mrg(url["5"]):
+        print ("ls", end="")
+        vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
 
 def main():
     argparser = Argparser()
