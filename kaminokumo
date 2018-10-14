@@ -31,13 +31,15 @@ def mrg(url):
     requests.packages.urllib3.disable_warnings()
     resp = requests.get(url, verify=False)
     soup = BeautifulSoup(resp.text, "lxml")
-    #print(resp.text)
     res = soup.select("dd")
-    length = len(res[7].text.split(","))
+    if url == "https://chaturbate.com/anabellastar":
+        search = res[6].text.split(",")
+    else:
+        search = res[7].text.split(",")
+    length = len(search)
     for split in res[7].text.split(","):
         if length == 1:
             if split.find("minutes") != -1:
-                #print("mg")
                 return True
     return False
 
@@ -48,19 +50,19 @@ def premain(argparser):
     signal.signal(signal.SIGINT, SigHandler_SIGINT)
     url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
     if mrg(url["1"]):
-        print("mg-", end="")
+        print("mg ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/mgup.ogg")
     if mrg(url["2"]):
-        print ("obk-", end="")
+        print ("obk ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/obkup.ogg")
     if mrg(url["3"]):
-        print ("ddd-", end="")
+        print ("ddd ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/dddup.ogg")
     if mrg(url["4"]):
-        print ("red-", end="")
+        print ("red ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/annaup.ogg")
     if mrg(url["5"]):
-        print ("ls-", end="")
+        print ("ls ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
 
 def main():
