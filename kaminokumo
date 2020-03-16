@@ -31,17 +31,19 @@ def mrg(url):
     requests.packages.urllib3.disable_warnings()
     resp = requests.get(url, verify=False)
     soup = BeautifulSoup(resp.text, "lxml")
-    res = soup.select("dd")
-    if url == "https://chaturbate.com/anabellastar":
-        search = res[6].text.split(",")
+    search = soup.find_all("div", class_="label")
+
+    Up_Time = str()
+    for elem in search:
+        if elem.string == "Last Broadcast:":
+            Up_Time = elem.next_sibling.next_sibling.string
+            print(elem.next_sibling.next_sibling)
+
+    if Up_Time.find("minutes") != -1:
+        print(url)
+        return True
     else:
-        search = res[7].text.split(",")
-    length = len(search)
-    for split in res[7].text.split(","):
-        if length == 1:
-            if split.find("minutes") != -1:
-                return True
-    return False
+        return False
 
 def vocalize(sound):
     subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
@@ -55,18 +57,9 @@ def premain(argparser):
     if mrg(url["2"]):
         print ("obk ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/obkup.ogg")
-    if mrg(url["3"]):
-        print ("ddd ", end="")
-        vocalize(os.path.expanduser("~") + "/scripts/mila/dddup.ogg")
-    if mrg(url["4"]):
-        print ("red ", end="")
-        vocalize(os.path.expanduser("~") + "/scripts/mila/annaup.ogg")
     if mrg(url["5"]):
         print ("ls ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
-    if mrg(url["6"]):
-        print ("vv ", end="")
-        #vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
 
 def main():
     argparser = Argparser()
