@@ -37,10 +37,9 @@ def mrg(url):
     for elem in search:
         if elem.string == "Last Broadcast:":
             Up_Time = elem.next_sibling.next_sibling.string
-            print(elem.next_sibling.next_sibling)
+            #print(elem.next_sibling.next_sibling)
 
     if Up_Time.find("minutes") != -1:
-        print(url)
         return True
     else:
         return False
