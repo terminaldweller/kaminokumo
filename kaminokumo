@@ -12,6 +12,7 @@ import urllib3
 from time import sleep
 from bs4 import BeautifulSoup
 import subprocess
+import re
 
 def SigHandler_SIGINT(signum, frame):
     print()
@@ -24,8 +25,11 @@ class Argparser(object):
         parser.add_argument("--name", type=str, nargs="+", help="url to scrape")
         parser.add_argument("--dbg", action="store_true", help="debug", default=False)
         parser.add_argument("--demon", action="store_true", help="run as daemon", default=False)
+        parser.add_argument("--manga", action="store_true", help="run manga scraper", default=False)
+        parser.add_argument("--cb", action="store_true", help="run cb scraper", default=False)
         parser.add_argument("--slumber", type=int, help="how long the demon sleeps", default=60)
         self.args = parser.parse_args()
+
 
 def mrg(url):
     requests.packages.urllib3.disable_warnings()
@@ -44,11 +48,8 @@ def mrg(url):
     else:
         return False
 
-def vocalize(sound):
-    subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
-###############################################################################
-def premain(argparser):
-    signal.signal(signal.SIGINT, SigHandler_SIGINT)
+
+def run_cb_scrape():
     url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
     if mrg(url["1"]):
         print("mg ", end="")
@@ -59,6 +60,33 @@ def premain(argparser):
     if mrg(url["5"]):
         print ("ls ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
+
+
+def manga_scrape():
+    urls = json.load(open("/home/bloodstalker/extra/kaminokumo/manga.json"))
+    requests.packages.urllib3.disable_warnings()
+    for name, url in urls.items():
+        resp = requests.get(url, verify=False)
+        soup = BeautifulSoup(resp.text, "lxml")
+        search = soup.find_all("a", class_="chapter-name text-nowrap")
+        re_res = []
+        for thing in search:
+            re_res.append(re.findall("Chapter [0-9]*", thing.text))
+        print(name,"-->", re_res[0][0])
+
+
+def vocalize(sound):
+    subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
+###############################################################################
+def premain(argparser):
+    signal.signal(signal.SIGINT, SigHandler_SIGINT)
+    if argparser.args.cb:
+        run_cb_scrape()
+    elif argparser.args.manga:
+        manga_scrape()
+    else:
+        pass
+
 
 def main():
     argparser = Argparser()
