@@ -71,7 +71,7 @@ def manga_scrape():
         search = soup.find_all("a", class_="chapter-name text-nowrap")
         re_res = []
         for thing in search:
-            re_res.append(re.findall("Chapter [0-9]*", thing.text))
+            re_res.append(re.findall("Chapter [0-9]*[\.[0-9]*]?", thing.text))
         print(name,"-->", re_res[0][0])
 
 
