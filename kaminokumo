@@ -83,7 +83,7 @@ def manga_scrape():
             re_res.append(re.findall("Chapter [0-9]*[\.[0-9]*]?", thing.text))
         # print(name, "-->", re_res[0][0])
         result += name + "-->" + re_res[0][0] + "\n"
-    print(result)
+    print(result, end="")
 
 
 def vocalize(sound):
