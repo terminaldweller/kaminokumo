@@ -14,20 +14,28 @@ from bs4 import BeautifulSoup
 import subprocess
 import re
 
+
 def SigHandler_SIGINT(signum, frame):
     print()
     sys.exit(0)
+
 
 class Argparser(object):
     def __init__(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("--url", type=str, nargs="+", help="url to scrape")
-        parser.add_argument("--name", type=str, nargs="+", help="url to scrape")
-        parser.add_argument("--dbg", action="store_true", help="debug", default=False)
-        parser.add_argument("--demon", action="store_true", help="run as daemon", default=False)
-        parser.add_argument("--manga", action="store_true", help="run manga scraper", default=False)
-        parser.add_argument("--cb", action="store_true", help="run cb scraper", default=False)
-        parser.add_argument("--slumber", type=int, help="how long the demon sleeps", default=60)
+        parser.add_argument("--name", type=str, nargs="+",
+                            help="url to scrape")
+        parser.add_argument("--dbg", action="store_true",
+                            help="debug", default=False)
+        parser.add_argument("--demon", action="store_true",
+                            help="run as daemon", default=False)
+        parser.add_argument("--manga", action="store_true",
+                            help="run manga scraper", default=False)
+        parser.add_argument("--cb", action="store_true",
+                            help="run cb scraper", default=False)
+        parser.add_argument("--slumber", type=int,
+                            help="how long the demon sleeps", default=60)
         self.args = parser.parse_args()
 
 
@@ -41,7 +49,7 @@ def mrg(url):
     for elem in search:
         if elem.string == "Last Broadcast:":
             Up_Time = elem.next_sibling.next_sibling.string
-            #print(elem.next_sibling.next_sibling)
+            # print(elem.next_sibling.next_sibling)
 
     if Up_Time.find("minutes") != -1:
         return True
@@ -55,16 +63,17 @@ def run_cb_scrape():
         print("mg ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/mgup.ogg")
     if mrg(url["2"]):
-        print ("obk ", end="")
+        print("obk ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/obkup.ogg")
     if mrg(url["5"]):
-        print ("ls ", end="")
+        print("ls ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
 
 
 def manga_scrape():
     urls = json.load(open("/home/bloodstalker/extra/kaminokumo/manga.json"))
     requests.packages.urllib3.disable_warnings()
+    result = str()
     for name, url in urls.items():
         resp = requests.get(url, verify=False)
         soup = BeautifulSoup(resp.text, "lxml")
@@ -72,12 +81,16 @@ def manga_scrape():
         re_res = []
         for thing in search:
             re_res.append(re.findall("Chapter [0-9]*[\.[0-9]*]?", thing.text))
-        print(name,"-->", re_res[0][0])
+        # print(name, "-->", re_res[0][0])
+        result += name + "-->" + re_res[0][0] + "\n"
+    print(result)
 
 
 def vocalize(sound):
     subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
 ###############################################################################
+
+
 def premain(argparser):
     signal.signal(signal.SIGINT, SigHandler_SIGINT)
     if argparser.args.cb:
@@ -95,13 +108,15 @@ def main():
             premain(argparser)
         except Exception as e:
             print(e.__doc__)
-            if e.message: print(e.message)
+            if e.message:
+                print(e.message)
             variables = globals().copy()
             variables.update(locals())
             shell = code.InteractiveConsole(variables)
             shell.interact(banner="DEBUG REPL")
     else:
         premain(argparser)
+
 
 if __name__ == "__main__":
     main()
