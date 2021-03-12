@@ -13,6 +13,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 import subprocess
 import re
+from pathlib import Path
 
 
 def SigHandler_SIGINT(signum, frame):
@@ -71,7 +72,13 @@ def run_cb_scrape():
 
 
 def manga_scrape():
-    urls = json.load(open("/home/bloodstalker/extra/kaminokumo/manga.json"))
+    path = str()
+    if Path(sys.argv[0]).is_symlink():
+        path = os.readlink(sys.argv[0])
+    else:
+        path = sys.argv[0]
+
+    urls = json.load(open(os.path.dirname(path)+"/manga.json"))
     requests.packages.urllib3.disable_warnings()
     result = str()
     for name, url in urls.items():
