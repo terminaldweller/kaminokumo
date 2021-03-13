@@ -30,6 +30,8 @@ class Argparser(object):
                             help="run as daemon", default=False)
         parser.add_argument("--manga", action="store_true",
                             help="run manga scraper", default=False)
+        parser.add_argument("--anime", action="store_true",
+                            help="run anime scraper", default=False)
         parser.add_argument("--cb", action="store_true",
                             help="run cb scraper", default=False)
         parser.add_argument("--slumber", type=int,
@@ -90,6 +92,28 @@ def manga_scrape():
     print(result, end="")
 
 
+def anime_scrape():
+    path = str()
+    if Path(sys.argv[0]).is_symlink():
+        path = os.readlink(sys.argv[0])
+    else:
+        path = sys.argv[0]
+
+    urls = json.load(open(os.path.dirname(path)+"/anime.json"))
+    requests.packages.urllib3.disable_warnings()
+    result = str()
+    for name, url in urls.items():
+        resp = requests.get(url, verify=False)
+        soup = BeautifulSoup(resp.text, "lxml")
+        search = soup.find_all("a", href=True)
+        re_res = []
+        for thing in search:
+            re_res.append(re.findall("Episode [0-9]*$", thing.text))
+        # print(name+":"+repr(max(re_res)))
+        result += name+":"+repr(max(re_res)) + "\n"
+    print(result, end="")
+
+
 def vocalize(sound):
     subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
 ###############################################################################
@@ -101,6 +125,8 @@ def premain(argparser):
         run_cb_scrape()
     elif argparser.args.manga:
         manga_scrape()
+    elif argparser.args.anime:
+        anime_scrape()
     else:
         pass
 
