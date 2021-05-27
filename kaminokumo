@@ -88,7 +88,10 @@ def manga_scrape():
         for thing in search:
             re_res.append(re.findall("Chapter [0-9]*[.[0-9]*]?", thing.text))
         # print(name, "-->", re_res[0][0])
-        result += name + "-->" + re_res[0][0] + "\n"
+        try:
+            result += name + "-->" + re_res[0][0] + "\n"
+        except IndexError:
+            result += name + "--> nothing\n"
     print(result, end="")
 
 
