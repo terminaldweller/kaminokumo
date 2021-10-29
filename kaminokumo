@@ -22,20 +22,33 @@ class Argparser(object):
     def __init__(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("--url", type=str, nargs="+", help="url to scrape")
-        parser.add_argument("--name", type=str, nargs="+",
-                            help="url to scrape")
-        parser.add_argument("--dbg", action="store_true",
-                            help="debug", default=False)
-        parser.add_argument("--demon", action="store_true",
-                            help="run as daemon", default=False)
-        parser.add_argument("--manga", action="store_true",
-                            help="run manga scraper", default=False)
-        parser.add_argument("--anime", action="store_true",
-                            help="run anime scraper", default=False)
-        parser.add_argument("--cb", action="store_true",
-                            help="run cb scraper", default=False)
-        parser.add_argument("--slumber", type=int,
-                            help="how long the demon sleeps", default=60)
+        parser.add_argument(
+            "--name", type=str, nargs="+", help="url to scrape"
+        )
+        parser.add_argument(
+            "--dbg", action="store_true", help="debug", default=False
+        )
+        parser.add_argument(
+            "--demon", action="store_true", help="run as daemon", default=False
+        )
+        parser.add_argument(
+            "--manga",
+            action="store_true",
+            help="run manga scraper",
+            default=False,
+        )
+        parser.add_argument(
+            "--anime",
+            action="store_true",
+            help="run anime scraper",
+            default=False,
+        )
+        parser.add_argument(
+            "--cb", action="store_true", help="run cb scraper", default=False
+        )
+        parser.add_argument(
+            "--slumber", type=int, help="how long the demon sleeps", default=60
+        )
         self.args = parser.parse_args()
 
 
@@ -77,7 +90,7 @@ def manga_scrape():
     else:
         path = sys.argv[0]
 
-    urls = json.load(open(os.path.dirname(path)+"/manga.json"))
+    urls = json.load(open(os.path.dirname(path) + "/manga.json"))
     requests.packages.urllib3.disable_warnings()
     result = str()
     for name, url in urls.items():
@@ -102,7 +115,7 @@ def anime_scrape():
     else:
         path = sys.argv[0]
 
-    urls = json.load(open(os.path.dirname(path)+"/anime.json"))
+    urls = json.load(open(os.path.dirname(path) + "/anime.json"))
     requests.packages.urllib3.disable_warnings()
     result = str()
     for name, url in urls.items():
@@ -113,12 +126,14 @@ def anime_scrape():
         for thing in search:
             re_res.append(re.findall("Episode [0-9]*$", thing.text))
         # print(name+":"+repr(max(re_res)))
-        result += name+":"+repr(max(re_res)) + "\n"
+        result += name + ":" + repr(max(re_res)) + "\n"
     print(result, end="")
 
 
 def vocalize(sound):
-    subprocess.call([os.path.expanduser("~")+"/scripts/voice.sh", sound])
+    subprocess.call([os.path.expanduser("~") + "/scripts/voice.sh", sound])
+
+
 ###############################################################################
 
 
