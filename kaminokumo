@@ -22,6 +22,11 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
+green = bcolors.OKGREEN if sys.stdout.isatty() else ""
+blue = bcolors.OKBLUE if sys.stdout.isatty() else ""
+cyan = bcolors.OKCYAN if sys.stdout.isatty() else ""
+
+
 class Argparser(object):
     def __init__(self):
         parser = argparse.ArgumentParser()
@@ -106,11 +111,7 @@ def manga_scrape():
         for thing in search:
             # re_res.append(re.findall("Chapter [0-9]*[.[0-9]*]?", thing.text))
             re_res.append(
-                bcolors.OKGREEN
-                + thing["title"]
-                + " >>> "
-                + bcolors.OKCYAN
-                + thing["href"]
+                green + thing["title"] + " >>> " + blue + thing["href"]
             )
         try:
             # result += name + "-->" + re_res[0][0] + "\n"
