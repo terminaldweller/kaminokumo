@@ -2,20 +2,24 @@
 
 import argparse
 import json
-import code
-import signal
 import sys
 import os
 import requests
 from bs4 import BeautifulSoup
-import subprocess
 import re
 from pathlib import Path
 
 
-def SigHandler_SIGINT(signum, frame):
-    print()
-    sys.exit(0)
+class bcolors:
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
 class Argparser(object):
@@ -52,6 +56,13 @@ class Argparser(object):
         self.args = parser.parse_args()
 
 
+path = str()
+if Path(sys.argv[0]).is_symlink():
+    path = os.readlink(sys.argv[0])
+else:
+    path = sys.argv[0]
+
+
 def mrg(url):
     requests.packages.urllib3.disable_warnings()
     resp = requests.get(url, verify=False)
@@ -71,7 +82,7 @@ def mrg(url):
 
 
 def run_cb_scrape():
-    url = json.load(open("/home/bloodstalker/extra/kaminokumo/data.json"))
+    url = json.load(open(os.path_dirname(path) + "/cb.json"))
     if mrg(url["1"]):
         print("mg ", end="")
         vocalize(os.path.expanduser("~") + "/scripts/mila/mgup.ogg")
@@ -84,37 +95,33 @@ def run_cb_scrape():
 
 
 def manga_scrape():
-    path = str()
-    if Path(sys.argv[0]).is_symlink():
-        path = os.readlink(sys.argv[0])
-    else:
-        path = sys.argv[0]
-
     urls = json.load(open(os.path.dirname(path) + "/manga.json"))
     requests.packages.urllib3.disable_warnings()
     result = str()
     for name, url in urls.items():
-        resp = requests.get(url, verify=False)
+        resp = requests.get(url, verify=False, allow_redirects=True)
         soup = BeautifulSoup(resp.text, "lxml")
         search = soup.find_all("a", class_="chapter-name text-nowrap")
         re_res = []
         for thing in search:
-            re_res.append(re.findall("Chapter [0-9]*[.[0-9]*]?", thing.text))
-        # print(name, "-->", re_res[0][0])
+            # re_res.append(re.findall("Chapter [0-9]*[.[0-9]*]?", thing.text))
+            re_res.append(
+                bcolors.OKGREEN
+                + thing["title"]
+                + " >>> "
+                + bcolors.OKCYAN
+                + thing["href"]
+            )
         try:
-            result += name + "-->" + re_res[0][0] + "\n"
+            # result += name + "-->" + re_res[0][0] + "\n"
+            # result += bcolors.OKBLUE + name + "-->" + re_res[0] + "\n"
+            result += re_res[0] + "\n"
         except IndexError:
             result += name + "--> nothing\n"
     print(result, end="")
 
 
 def anime_scrape():
-    path = str()
-    if Path(sys.argv[0]).is_symlink():
-        path = os.readlink(sys.argv[0])
-    else:
-        path = sys.argv[0]
-
     urls = json.load(open(os.path.dirname(path) + "/anime.json"))
     requests.packages.urllib3.disable_warnings()
     result = str()
@@ -131,14 +138,13 @@ def anime_scrape():
 
 
 def vocalize(sound):
-    subprocess.call([os.path.expanduser("~") + "/scripts/voice.sh", sound])
+    # import subprocess
+    # subprocess.call([os.path.expanduser("~") + "/scripts/voice.sh", sound])
+    pass
 
 
-###############################################################################
-
-
-def premain(argparser):
-    signal.signal(signal.SIGINT, SigHandler_SIGINT)
+def main():
+    argparser = Argparser()
     if argparser.args.cb:
         run_cb_scrape()
     elif argparser.args.manga:
@@ -147,23 +153,6 @@ def premain(argparser):
         anime_scrape()
     else:
         pass
-
-
-def main():
-    argparser = Argparser()
-    if argparser.args.dbg:
-        try:
-            premain(argparser)
-        except Exception as e:
-            print(e.__doc__)
-            if e.message:
-                print(e.message)
-            variables = globals().copy()
-            variables.update(locals())
-            shell = code.InteractiveConsole(variables)
-            shell.interact(banner="DEBUG REPL")
-    else:
-        premain(argparser)
 
 
 if __name__ == "__main__":
