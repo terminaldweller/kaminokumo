@@ -5,9 +5,10 @@ import json
 import sys
 import os
 import requests
-from bs4 import BeautifulSoup
 import re
-from pathlib import Path
+import concurrent.futures
+import bs4
+import pathlib
 
 
 class bcolors:
@@ -62,16 +63,36 @@ class Argparser(object):
 
 
 path = str()
-if Path(sys.argv[0]).is_symlink():
+if pathlib.Path(sys.argv[0]).is_symlink():
     path = os.readlink(sys.argv[0])
 else:
     path = sys.argv[0]
 
 
-def mrg(url):
+def single_get(url: str) -> requests.Response:
+    return requests.get(url, allow_redirects=True)
+
+
+def multi_get(urls: list) -> list:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+        response_list = list(pool.map(single_get, urls))
+    return response_list
+
+
+def single_get_tag(input: list) -> (requests.Response, str):
+    return requests.get(input[0], allow_redirects=True), input[1]
+
+
+def multi_get_tag(urls: list) -> list:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+        response_list = list(pool.map(single_get_tag, urls))
+    return response_list
+
+
+def mrg(url: str) -> bool:
     requests.packages.urllib3.disable_warnings()
     resp = requests.get(url, verify=False)
-    soup = BeautifulSoup(resp.text, "lxml")
+    soup = bs4.BeautifulSoup(resp.text, "lxml")
     search = soup.find_all("div", class_="label")
 
     Up_Time = str()
@@ -86,7 +107,7 @@ def mrg(url):
         return False
 
 
-def run_cb_scrape():
+def run_cb_scrape() -> None:
     url = json.load(open(os.path_dirname(path) + "/cb.json"))
     if mrg(url["1"]):
         print("mg ", end="")
@@ -99,46 +120,53 @@ def run_cb_scrape():
         vocalize(os.path.expanduser("~") + "/scripts/mila/lisaup.ogg")
 
 
-def manga_scrape():
+def manga_scrape() -> None:
     urls = json.load(open(os.path.dirname(path) + "/manga.json"))
     requests.packages.urllib3.disable_warnings()
     result = str()
-    for name, url in urls.items():
-        resp = requests.get(url, verify=False, allow_redirects=True)
-        soup = BeautifulSoup(resp.text, "lxml")
+    url_list = list()
+    [url_list.append(url) for _, url in urls.items()]
+    response_list = multi_get(url_list)
+
+    for resp in response_list:
+        soup = bs4.BeautifulSoup(resp.text, "lxml")
         search = soup.find_all("a", class_="chapter-name text-nowrap")
         re_res = []
         for thing in search:
-            # re_res.append(re.findall("Chapter [0-9]*[.[0-9]*]?", thing.text))
             re_res.append(
                 green + thing["title"] + " >>> " + blue + thing["href"]
             )
         try:
-            # result += name + "-->" + re_res[0][0] + "\n"
-            # result += bcolors.OKBLUE + name + "-->" + re_res[0] + "\n"
             result += re_res[0] + "\n"
         except IndexError:
-            result += name + "--> nothing\n"
+            result += thing["title"] + "--> nothing\n"
     print(result, end="")
 
 
-def anime_scrape():
+def anime_scrape() -> None:
     urls = json.load(open(os.path.dirname(path) + "/anime.json"))
     requests.packages.urllib3.disable_warnings()
-    result = str()
-    for name, url in urls.items():
-        resp = requests.get(url, verify=False)
-        soup = BeautifulSoup(resp.text, "lxml")
-        search = soup.find_all("a", href=True)
+    results = list()
+    url_list = list()
+    [url_list.append([url, tag]) for tag, url in urls.items()]
+    response_list = multi_get_tag(url_list)
+
+    for resp, tag in response_list:
+        soup = bs4.BeautifulSoup(resp.text, "lxml")
+        search = soup.find_all("a")
         re_res = []
+
         for thing in search:
+            child = thing.findChild("span", class_="jtitle")
+            if not child:
+                continue
             re_res.append(re.findall("Episode [0-9]*$", thing.text))
-        # print(name+":"+repr(max(re_res)))
-        result += name + ":" + repr(max(re_res)) + "\n"
-    print(result, end="")
+        results.append(green + tag + " >>> " + blue + repr(max(re_res)))
+    for result in results:
+        print(result)
 
 
-def vocalize(sound):
+def vocalize(sound) -> None:
     # import subprocess
     # subprocess.call([os.path.expanduser("~") + "/scripts/voice.sh", sound])
     pass
