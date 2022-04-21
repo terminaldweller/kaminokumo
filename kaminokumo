@@ -134,7 +134,7 @@ def manga_scrape() -> None:
         re_res = []
         for thing in search:
             re_res.append(
-                green + thing["title"] + " >>> " + blue + thing["href"]
+                green + thing["title"] + " > " + blue + thing["href"]
             )
         try:
             result += re_res[0] + "\n"
@@ -161,7 +161,7 @@ def anime_scrape() -> None:
             if not child:
                 continue
             re_res.append(re.findall("Episode [0-9]*$", thing.text))
-        results.append(green + tag + " >>> " + blue + repr(max(re_res)))
+        results.append(green + tag + " > " + blue + repr(max(re_res)))
     for result in results:
         print(result)
 
