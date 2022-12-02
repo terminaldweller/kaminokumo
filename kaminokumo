@@ -4,11 +4,11 @@ import argparse
 import json
 import sys
 import os
-import requests
 import re
 import concurrent.futures
-import bs4
 import pathlib
+import requests
+import bs4
 
 
 class bcolors:
@@ -74,7 +74,7 @@ def single_get(url: str) -> requests.Response:
 
 
 def multi_get(urls: list) -> list:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as pool:
         response_list = list(pool.map(single_get, urls))
     return response_list
 
@@ -84,7 +84,7 @@ def single_get_tag(input: list) -> (requests.Response, str):
 
 
 def multi_get_tag(urls: list) -> list:
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as pool:
         response_list = list(pool.map(single_get_tag, urls))
     return response_list
 
@@ -139,7 +139,8 @@ def manga_scrape() -> None:
         try:
             result += re_res[0] + "\n"
         except IndexError:
-            result += thing["title"] + "--> nothing\n"
+            pass
+            # result += thing["title"] + "--> nothing\n"
     print(result, end="")
 
 
